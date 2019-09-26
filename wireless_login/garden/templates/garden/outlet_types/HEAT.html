@@ -1,0 +1,55 @@
+<div class="container pt-2 pb-2">
+    <p>This outlet will turn on if the temperature gets below the desired range, and will turn off again once it becomes hot enough.</p>
+    <div class = "form-group">
+        <div class = "row" align="center">
+            <div class="col-sm-6 mt-2 mb-2">
+                <h5>Day Temperature</h5>
+                Low: <input class="climate_change" type="number" pattern="[0-9]*" id="day_low" value='{{garden.day_low}}' style="width:3em;" max="99">
+                High: <input class="climate_change" type="number" pattern="[0-9]*" id="day_high" value='{{garden.day_high}}' style="width:3em;" max="99">
+            </div>
+            <div class="col-sm-6 mt-2 mb-2">
+                <h5>Night Temperature</h5>
+                Low: <input class="climate_change" type="number" pattern="[0-9]*" id="night_low" value='{{garden.night_low}}' style="width:3em;" max="99">
+                High: <input class="climate_change" type="number" pattern="[0-9]*" id="night_high" value='{{garden.night_high}}' style="width:3em;" max="99">
+            </div>
+        </div>
+    </div>
+    <small>This setting is for any device that can heat the garden, most commonly supplimental lighting or electric heaters. This is especially important in very 
+    cold environments or gardens that are not connected to the heat of a house. Garages, sheds, attics and basements
+    are common examples.</small>
+</div>
+<script type=text/javascript>
+// This is the variable exchange json
+    $('.climate_change').change(function(){
+        var garden_serial = '{{garden.serial}}';
+        var outlet_number = 0;
+        var variable = $(this).attr('id');
+        var new_value = $(this).val();
+        
+        $.ajax({
+            url : "{% url 'variable_change' garden.name  %}",
+            type : 'POST',
+            data : {type : "data_exchange", garden_serial : garden_serial, outlet_number : outlet_number, variable : variable, new_value : new_value},
+            dataType : 'json',
+            success : function(data) {
+                
+            }
+        });
+        return false;
+    });
+    
+//This is just to help the number fields focus
+    $(function () {
+        var focusedElement;
+        $(document).on('focus', 'input', function () {
+            if (focusedElement == this) return; //already focused, return so user can now place cursor at specific point in input.
+            focusedElement = this;
+            setTimeout(function () { 
+                focusedElement.select(); 
+                focusedElement.focus();
+                focusedElement.setSelectionRange(0,99999);
+
+            }, 50); //select all text in any field on focus for easy re-entry. Delay sightly to allow focus to "stick" before selecting.
+        });
+    });
+</script>

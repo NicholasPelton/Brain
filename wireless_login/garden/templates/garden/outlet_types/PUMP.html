@@ -1,0 +1,113 @@
+<div class="container pt-2 pb-2">
+    <div class="row">
+        <div class="col-sm-6 col-7 ml-0 pl-0" align=right>
+            <div class="btn-group-dropdown ">
+                <label for="pump_number_dropdown" class="col-form-label pr-1"><h5>Times a Day:</h5></label>
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle caret-off" type="button" id="pump_number_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <h5><span id="pump_number_label">{{outlet.pump_number}}</span></h5>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="pump_number_dropdown">
+                    {% for i in "x"|rjust:"15" %}
+                      <button class="dropdown-item btn-sm pump_list" id='pump_number' value='{{ forloop.counter }}' type="button">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="btn-group-dropdown">    
+                <label for="pump_duration_dropdown" class="col-form-label pr-1"><h5>Duration (min):</h5></label>
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle caret-off" type="button" id="pump_duration_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <h5><span id="pump_duration_label">{{outlet.pump_duration}}</span></h5>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="pump_durartion_dropdown">
+                    {% for i in "x"|rjust:"10" %}
+                      <button class="dropdown-item btn-sm pump_list" id='pump_duration' value='{{ forloop.counter }}' type="button">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+            <div class="form-check" align=right>
+                <input class="form-check-input pump_list" type="checkbox" id="pump_day" {% if outlet.pump_day %} checked {% endif %}>
+                <label class="form-check-label" for="pump_day">
+                    Only During the Day
+                </label>
+            </div>
+            <div class="form-check" align=right>
+                <input class="form-check-input pump_list" type="checkbox" id="water_more" {% if outlet.water_more %} checked {% endif %}>
+                <label class="form-check-label" for="water_more">
+                    Water More if Dry
+                </label>
+            </div>
+        </div>
+        <br><br>
+        <div class="col-sm-6 col-5">
+            <h5>Schedule:</h5>
+            <span id="pump_schedule"></span>
+        </div>
+    </div>
+</div>
+
+<script type=text/javascript>
+// Set up the pump times when the page loads
+    $(document).ready(function(){
+        $.ajax({
+            url : "{% url 'variable_change' garden.serial  %}",
+            type : 'POST',
+            data : {type : "data_exchange", garden_serial : '{{garden.serial}}', 
+                           outlet_number : '{{outlet.number}}', variable : "no_change"},
+            dataType : 'json',
+            async:false,
+            success : function(data) {
+                var list = document.createElement('p');
+                var pump_reader = data['data'];
+                for (var i = 0; i < pump_reader.length; i++){
+                    var item = document.createElement('div');
+                    item.append(document.createTextNode(pump_reader[i]));
+                    list.append(item);
+                }
+                $("#pump_schedule").text('');
+                $("#pump_schedule").append(list);
+            }
+        });
+    });
+    
+// This is the variable exchange json
+    $(function() {
+        $('.pump_list').click(function(){
+            var new_value= $(this).val();
+            var variable = $(this).attr('id');
+            if (variable=='pump_day' || variable=='water_more'){
+                if ($('#'+String(variable)).is(':checked')){
+                    new_value = "True";
+                }else{
+                    new_value = "False";
+                }
+            }
+            var outlet_number = {{outlet.number}};
+            var garden_serial = '{{garden.serial}}';
+            $("#"+String(variable)+"_label").text(new_value);
+            $("#"+String(variable)+"_dropdown").dropdown('toggle');
+
+            $.ajax({
+                url : "{% url 'variable_change' garden.serial  %}",
+                type : 'POST',
+                data : {type : "data_exchange", garden_serial : garden_serial, 
+                               outlet_number : outlet_number, variable : variable, new_value : new_value},
+                dataType : 'json',
+                async:false,
+                success : function(data) {
+                    var list = document.createElement('p');
+                    var pump_reader = data['data'];
+                    for (var i = 0; i < pump_reader.length; i++){
+                        var item = document.createElement('div');
+                        item.append(document.createTextNode(pump_reader[i]));
+                        list.append(item);
+                    }
+                    $("#pump_schedule").text('');
+                    $("#pump_schedule").append(list);
+                }
+            });
+            if (variable != 'pump_day' && variabl != 'water_more'){return false;}
+        });
+    });
+    
+    
+</script>

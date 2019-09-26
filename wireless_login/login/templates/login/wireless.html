@@ -1,0 +1,13 @@
+<!-- login/login.html -->
+{% extends 'garden/base.html' %}
+{% block title %}Log in to Wireless{% endblock %}
+
+{% block content %}
+<h2>Put in your wifi credentials:</h2>
+<h5>{{warning}}</h5>
+<form method ="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<button type="submit">Login</button>
+</form>
+{% endblock %}

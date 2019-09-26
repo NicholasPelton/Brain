@@ -1,0 +1,69 @@
+{% extends 'garden/base.html' %}
+
+{% block title %}{{garden.name}}{% endblock %}
+
+{% block content %}
+
+<div class="row" align="center">
+    <div class="col-sm-12">
+        <div class = "card text-white pt-3 mb-2" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/home/honky/wireless_login/mostrecent.jpeg');
+        background-position: center; background-size:100%; background-size:cover; height: 122px">
+            <div class = "card-body text-center pt-2 pl-0 pr-0">
+                <center><h3>{{garden.name}}</h3></center>
+                <h3>
+                    {% if garden.current_temp == 0 and garden.current_humidity == 0 %}
+                        No climate data
+                    {% else %}
+                        temp:{{garden.current_temp}} humidity:{{garden.current_humidity}}
+                    {% endif %}
+                </h3>        
+            </div>
+        </div>
+    </div>
+    {% for outlet in garden.outlet_set.all %}
+    {% if outlet.number != 5 %}
+    <div class="col-sm-6">
+    {% else %}
+    <div class="col-sm-12">
+    {% endif %}
+    <a href='{% url "outlet" outlet.number %}'  class="text-white">
+        <div class="card text-white bg-{{outlet.color}} mb-2 mt-2">
+            <div class="card-header pr-0 pl-0" style="height:122px">
+                <h4 class="card-title align-middle">
+                        {% if outlet.number == 5 %} LED:{%else%}{{outlet.number}}:{% endif %} {{outlet.get_style_display}} 
+                </h4>
+                <button class = "btn btn-outline-light btn-sm jbut" 
+                type="button" value='{{outlet.number}}' id="outlet_button{{outlet.number}}">
+                    <i class="material-icons" style="font-size:36px;" id="outlet_icon{{outlet.number}}">
+                        {% if outlet.is_on %} power {% else %} power_off {% endif %}
+                    </i>
+                </button>
+            </div>
+        </div>
+    </a>
+    </div>
+    {% endfor %}
+</div>
+
+
+<script type=text/javascript>
+    // Make the toggle button work
+    $(function() {
+        $('.jbut').bind('click', function(){
+            var outlet_num = $(this).val();
+            var garden_ser = '{{garden.serial}}';
+            
+            $.ajax({
+                url : "{% url 'toggler' %}",
+                type : 'POST',
+                data : {outlet_num : parseInt(outlet_num), garden_ser : "{{garden.serial}}"},
+                dataType : 'json',
+                success : function(data) {
+                    $("#outlet_icon"+String(outlet_num)).text(data['button_state']);
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{% endblock %}

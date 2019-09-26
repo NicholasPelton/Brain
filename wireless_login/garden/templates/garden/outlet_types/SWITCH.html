@@ -1,0 +1,8 @@
+<div class="container pt-2">
+    {% if outlet.number == 5 %}
+        <p>Switch the LED on or off manually using the switch above. To start a grow switch to simple timer mode above to set a schedule</p>
+    {% else %}
+        <p>This is for devices you do not want turning on or off automatically, simply turn it on manually yourself using the switch. 
+        It will still automatically shut down if temperatures exceed 100&deg;F </p>
+    {% endif %}
+</div>

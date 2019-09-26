@@ -1,0 +1,19 @@
+h5, h4 {
+    font-family: 'Righteous', cursive;
+}
+
+h3 {
+    font-family: 'Roboto', sans-serif;
+}
+
+.btn-in_button {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.caret-off::before {
+    display: none;
+}
+.caret-off::after {
+    display: none;
+}

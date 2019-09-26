@@ -1,0 +1,129 @@
+<div class="container pt-2 pb-2">
+    <p>Set the start date and how many hours to start with, then the end date and how many hours to end with.</p>
+    
+    <div class='row'>
+        <div class="col-6" align=right>
+            <h5>Start Date:</h5>
+        </div>
+        <div class="col-6">
+            <h5>End Date:</h5>
+        </div>    
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-6 pt-2" align="right"> 
+            <h5>
+                <input class="btn uvb_list" id="uvb_start_date" style="border-color:black;" 
+                            type="date" value="{{ outlet.uvb_start_date|date:"Y-m-d" }}">
+            </h5>
+        </div>
+        <div class="col-6 pt-2" align="left"> 
+            <h5>
+                <input class="btn uvb_list" id="uvb_end_date" style="border-color:black;" 
+                            type="date" value="{{ outlet.uvb_end_date|date:"Y-m-d" }}">
+            </h5>
+        </div>
+    </div>    
+    
+    <div class="row">
+        <div class="col-6" align=right>
+            <div class="btn-group-dropdown ">
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle caret-off" type="button" id="uvb_start_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <h5><span id="uvb_start_label">{{outlet.uvb_start}}</span></h5>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="uvb_start_dropdown">
+                    {% for i in "x"|rjust:"12" %}
+                      <button class="dropdown-item btn-sm uvb_list" id='uvb_start' value='{{ forloop.counter }}' type="button">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </div>
+                <label for="uvb_start_dropdown" class="col-form-label pr-1"><h5>Hours</h5></label>
+            </div>
+        </div>
+        <div class="col-6" align=lefts>
+            <div class="btn-group-dropdown ">
+                <button class="btn btn-outline-dark btn-sm dropdown-toggle caret-off" type="button" id="uvb_end_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <h5><span id="uvb_end_label">{{outlet.uvb_end}}</span></h5>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="uvb_end_dropdown">
+                    {% for i in "x"|rjust:"12" %}
+                      <button class="dropdown-item btn-sm uvb_list" id='uvb_end' value='{{ forloop.counter }}' type="button">{{ forloop.counter }}</button>
+                    {% endfor %}
+                </div>
+                <label for="uvb_end_dropdown" class="col-form-label pr-1"><h5>Hours</h5></label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class ="col">
+            <br>
+            <center><span id="uvb_label"></span></center>
+            <br>
+        </div>
+    </div>
+    
+    <small>This setting is for gradually transitioning light sources. It will change the duration each day between the start date and the end date. 
+    It is useful for UVB lights which tend to fade out as the year goes on, or for supplimental lights with a
+    red hue, which becomes more prominent as the year goes on. This setting is meant for experimenting!</small>
+</div>
+
+<script type=text/javascript>
+
+    $(document).ready(function(){
+        $.ajax({
+            url : "{% url 'variable_change' garden.serial  %}",
+            type : 'POST',
+            data : {type : "data_exchange", garden_serial : '{{garden.serial}}', 
+                           outlet_number : '{{outlet.number}}', variable : "no_change"},
+            dataType : 'json',
+            success : function(data) {
+                $("#uvb_label").text(data['data'])
+            }
+        });
+    });
+
+    $(function() {
+        
+        $('.uvb_list').click(function(){
+            var new_value= $(this).val();
+            var variable = $(this).attr('id');
+            var outlet_number = {{outlet.number}};
+            var garden_serial = '{{garden.serial}}';
+            $("#"+String(variable)+"_label").text(new_value);
+            $("#"+String(variable)+"_dropdown").dropdown('toggle');
+
+            $.ajax({
+                url : "{% url 'variable_change' garden.serial  %}",
+                type : 'POST',
+                data : {type : "data_exchange", garden_serial : garden_serial, 
+                               outlet_number : outlet_number, variable : variable, new_value : new_value},
+                dataType : 'json',
+                success : function(data) {
+                    $("#uvb_label").text(data['data'])
+                }
+            });
+            return false;
+        });
+        
+        $('.uvb_list').change(function(){
+            var new_value= $(this).val();
+            var variable = $(this).attr('id');
+            var outlet_number = {{outlet.number}};
+            var garden_serial = '{{garden.serial}}';
+            $("#"+String(variable)+"_label").text(new_value);
+            $("#"+String(variable)+"_dropdown").dropdown('toggle');
+
+            $.ajax({
+                url : "{% url 'variable_change' garden.serial  %}",
+                type : 'POST',
+                data : {type : "data_exchange", garden_serial : garden_serial, 
+                               outlet_number : outlet_number, variable : variable, new_value : new_value},
+                dataType : 'json',
+                success : function(data) {
+                    $("#uvb_label").text(data['data'])
+                }
+            });
+            return false;
+        });
+    });
+</script>

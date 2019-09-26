@@ -1,0 +1,97 @@
+{% extends 'garden/base.html' %}
+
+{% block title %}{{outlet}}{% endblock %}
+
+{% block content %}
+<div class = "card text-white bg-{{outlet.color}} pl-2 pr-2 pt-1 pb-0" style="height:122px"> 
+                
+        <h5>
+            {% if outlet.number == 5 %}
+                {{outlet}}:
+            {% else %}
+                {{outlet.number}}:
+            {% endif %}
+        </h5>
+        <!-- On/Off Button -->
+        <center>
+        <button class = "btn btn-outline-light btn-sm jbut" 
+        type="button" value='{{outlet.number}}' id="outlet_button{{outlet.number}}">
+          <i class="material-icons" style="font-size:36px;" id="outlet_icon{{outlet.number}}">
+              {% if outlet.is_on %} power {% else %} power_off {% endif %}
+          </i>
+        </button>
+        
+        <!-- Dropdown Menu -->
+        <div class="btn-group dropdown">
+            <button class="btn btn-outline-light dropdown-toggle" type="button" id="outlet_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="outlet_label">{{outlet.get_style_display}}</span>
+            </button>
+            <div class="dropdown-menu" id="style_menu" aria-labelledby="outlet_dropdown">
+                {% for type, style in outlet.STYLE_CHOICES %}
+                    {% if outlet.number != 5 or type == "LIGHT" or type == "SWITCH" %}
+                        {% if type == "HEAT" %} <div class="dropdown-divider"></div> {% endif %}
+                        <button class="dropdown-item jlist" value='{{type}}' id='{{style}}' type="button">{{style}}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </center>
+    <br>
+</div>    
+    <!-- Here is where the template goes -->
+    <div class = "card"> 
+        <div id="outlet_content"></div>
+    </div>  
+
+
+<script type=text/javascript>
+    $(document).ready(function(){
+        $('#outlet_content').load('{% url "outlet_template" outlet.number %}');
+    });
+    
+    // Make the toggle button work
+    $(function() {
+        $('.jlist').click(function(){
+            var new_value= $(this).val();
+            var outlet_style = $(this).attr('id');
+            var outlet_number = {{outlet.number}};
+            var garden_serial = '{{garden.serial}}';
+            $(".outlet_label").text(outlet_style);
+            $("#outlet_dropdown").dropdown('toggle');
+            $.ajax({
+                url : "{% url 'variable_change' garden.serial %}",
+                type : 'POST',
+                data : {type : "data_exchange", garden_serial : garden_serial, 
+                               outlet_number : outlet_number, variable : 'style', new_value : new_value},
+                dataType : 'json',
+                async:false,
+                success : function(data) {
+                }
+            });
+            $("#outlet_content").load('{% url "outlet_template" outlet.number %}');
+            return false;
+        });
+    });
+    
+    $(function() {
+        $('.jbut').bind('click', function(){
+            var outlet_num = $(this).val();
+            var garden_ser = '{{garden.serial}}';
+            
+            $.ajax({
+                url : "{% url 'toggler' %}",
+                type : 'POST',
+                data : {outlet_num : parseInt(outlet_num), garden_ser : "{{garden.serial}}"},
+                dataType : 'json',
+                async:false,
+                success : function(data) {
+                    $("#outlet_icon"+String(outlet_num)).text(data['button_state']);
+                }
+            });
+            return false;
+        });
+    });
+
+</script>
+
+{% endblock %}

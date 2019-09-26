@@ -1,0 +1,43 @@
+
+<div class="container pt-2 pb-2">
+    {% if outlet.number == 5 %}
+        <p>Set when the LED turns on and off. Twelve hours of light or less will cause the plant to flower.</p>
+    {% else %}
+        <p>Most commonly used with supplimental lights, this can be used with any device that goes on and off at a set time.</p>
+    {% endif %}
+    <div class="row mb-4">
+        <div class="col" align=right>
+            <label for="time_on" class="col-form-label"><h5>Time On</h5></label>
+            <input class="form-control time_switch" type="time" value='{{ outlet.time_on|time:"H:i" }}' id="time_on" style="max-width:8em;">
+        </div>
+        <div class="col">
+            <label for="time_off" class="col-form-label"><h5>Time Off</h5></label>
+            <input class="form-control time_switch" type="time" value='{{ outlet.time_off|time:"H:i" }}' id="time_off" style="max-width:8em;">
+        </div>
+    </div>
+    {% if outlet.number == 5 %}
+        <small>The settings for this do not need to match real life daylight. In fact, many people prefer to run their garden on the opposite daytime
+        schedule as outside. As far as the garden is concerned, it is daytime when the LED is on, and nighttime when the LED is off.</small>
+    {% endif %}
+</div>
+
+<script type=text/javascript>
+// Variable exchange json
+    $('.time_switch').change(function(){
+        var garden_serial = '{{garden.serial}}';
+        var outlet_number = '{{outlet.number}}';
+        var variable = $(this).attr('id');
+        var new_value = $(this).val();
+        
+        $.ajax({
+            url : "{% url 'variable_change' garden.name  %}",
+            type : 'POST',
+            data : {type : "data_exchange", garden_serial : garden_serial, outlet_number : outlet_number, variable : variable, new_value : new_value},
+            dataType : 'json',
+            success : function(data) {
+                
+            }
+        });
+        return false;
+    });
+</script>
