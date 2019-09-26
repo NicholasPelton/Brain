@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'o2db=z^aic)5x7&)&qu32fs(-(h66fpd5-e5!+^^)zj5+s$ix3'
+SECRET_KEY = 'SECRET_KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -90,8 +90,8 @@ CHANNEL_LAYERS = {
 }
 
 # S3 Storage Bucket
-AWS_ACCESS_KEY_ID = 'AKIAJKGMFUD5XSCKHFSQ'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = 'AWS_ACCESS_KEY_ID'
+AWS_SECRET_ACCESS_KEY = 'AWS_SECRET_ACCESS_KEY'
 AWS_STORAGE_BUCKET_NAME = 'motherbrainled.com'
 
 AWS_QUERYSTRING_AUTH = False #This will make sure that the file URL does not have unnecessary parameters like your access key.
